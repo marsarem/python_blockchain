@@ -31,8 +31,8 @@ class Database:
         new_blockchain_hash = self.get_blockchain_hash()
         if new_blockchain_hash != self.blockchain_hash:
             self.blockchain_hash = self.get_blockchain_hash()
-            self.pending_transactions_hash = self.get_pending_transactions_hash()
             self.initialize_last_hash_height()
+        self.pending_transactions_hash = self.get_pending_transactions_hash()
 
 
     def initialize_last_hash_height(self):

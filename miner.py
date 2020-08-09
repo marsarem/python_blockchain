@@ -122,7 +122,6 @@ class Miner():
                     continue
 
                 node_infos = node_infos[1]
-                # print(node_infos)
                 
                 if node_infos["pending_transactions_hash"] != self.pending_transactions_hash:
                     self.pending_transactions = self.get_transactions()

@@ -104,7 +104,7 @@ class Miner:
                 self.data_before_nonce = self.get_data_before_nonce()
 
 
-            if list(self.list_pending_transactions) != self.transactions:
+            if list(self.list_pending_transactions) != self.transactions_without_coinbase:
                 self.transactions_without_coinbase = list(self.list_pending_transactions)
                 self.transactions = self.add_coinbase(self.transactions_without_coinbase, self.address, self.coinbase, int(self.last_block_num)+1)
                 self.transactions_str = self.list_transactions_to_str()
