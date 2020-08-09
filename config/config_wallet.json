@@ -1,0 +1,13 @@
+{
+    "node": "http://localhost:5000",
+    "addresses": [
+        {
+            "private_key": "9ab0c2b8e7e24479309ad3fecf10a5a02b7ca308f38201b74d202742cf3abfac",
+            "address": "1k8DQcVQuEJqbMchUM1gRLPyjM7mK6KJF"
+        },
+        {
+            "private_key": "7a2c744a1abc96a11d3c20e414f5a66c29dc6c8f23aa521cf17d15a831fd4953",
+            "address": "1Bz3KJLQwHZ6kYSjBgHejVpxKFppP7ziT1"
+        }
+    ]
+}
