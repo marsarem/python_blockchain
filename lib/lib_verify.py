@@ -339,6 +339,7 @@ def get_transactions_hash_in_block(block):
         return list_transactions_hash
     except Exception as e:
         print(e)
+        raise e
         return "ERROR", f"Get transactions hash error"
 
 

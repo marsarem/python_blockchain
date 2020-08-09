@@ -135,7 +135,7 @@ class Database:
 
 
     def set_pending_transactions(self, new_pending_transactions):
-        with open(self.new_pending_transactions, "w") as file:
+        with open(self.path_pending_transactions, "w") as file:
             json.dump(new_pending_transactions, file, indent=4)
 
 
@@ -327,19 +327,16 @@ class LibNode:
 
             self.add_block(int(block_height)+1, hash_, block)
 
-            # IL FAUDRA LE FAIRE MAIS POUR LE MOMENT IL N'Y A RIE NDANS TRANSACTIONS.JSON
             # Delete all the transactions from the mined block that are in pending transactions
-            # pending_transactions = self.get_pending_transactions()
-            # if len(pending_transactions) != 0:
-            #     new_pending_transactions = pending_transactions[:]
-            #     list_transactions_hash = lib_verify.get_transactions_hash_in_block([block])
-
-            #     for hash_ in list_transactions_hash:
-            #         for pending_transaction in pending_transactions:
-            #             if hash_ == pending_transaction["hash"]:
-            #                 new_pending_transactions.remove(pending_transaction)
-
-            #     self.database.set_pending_transactions(new_pending_transactions)
+            pending_transactions = self.get_pending_transactions()[0]
+            if len(pending_transactions) > 0:
+                new_pending_transactions = pending_transactions[:]
+                list_transactions_hash = lib_verify.get_transactions_hash_in_block(block)
+                for hash_ in list_transactions_hash:
+                    for pending_transaction in pending_transactions:
+                        if hash_ == pending_transaction["hash"]:
+                            new_pending_transactions.remove(pending_transaction)
+                self.database.set_pending_transactions(new_pending_transactions)
 
 
             return "Ok", 200

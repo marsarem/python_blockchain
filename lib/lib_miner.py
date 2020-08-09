@@ -117,71 +117,9 @@ class Miner:
 
             if hash_[:len(self.diff)] == self.diff and self.block_found[0] == None:
                 logging.info("Bloc found")
-                print(data["height"])
                 self.block_found[0] = {"hash":hash_, "block":block}
                 
                 
-
-
-
-# def example_transactions():
-#     private_key = lib_cryptography.Keys.generate_private_key()
-#     address = lib_cryptography.Keys.generate_address(private_key)
-
-#     private_key2 = lib_cryptography.Keys.generate_private_key()
-#     address2 = lib_cryptography.Keys.generate_address(private_key2)
-
-#     input_tx = [{
-#         "amount":300,
-#         "from_addr":address,
-#         "private_key":private_key,
-#         "previous_tx":"None"
-#     },{
-#         "amount":100,
-#         "from_addr":address,
-#         "private_key":private_key,
-#         "previous_tx":"None"
-#     }]
-#     output_txs = [{
-#         "amount":300,
-#         "to_addr":address
-#     },{
-#         "amount":100,
-#         "to_addr":address2
-#     }
-#     ]
-#     transaction1 = lib_transactions.Transaction().create_transaction(input_tx, output_txs)
-
-#     input_tx = [{
-#         "amount":500,
-#         "from_addr":address2,
-#         "private_key":private_key2,
-#         "previous_tx":"None"
-#     }]
-#     output_txs = [{
-#         "amount":250,
-#         "to_addr":address
-#     },{
-#         "amount":250,
-#         "to_addr":address2
-#     }
-#     ]
-#     transaction2 = lib_transactions.Transaction().create_transaction(input_tx, output_txs)
-
-
-#     transactions = [transaction1, transaction2]
-#     return transactions
-
-
-# def example_diff():
-#     return "0000"
-
-# def example_coinbase():
-#     return 100
-
-# def example_last_bloc():
-#     return 1, "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
-
 
 if __name__ == '__main__':
     print("Do not launch this file. Use mine.py")

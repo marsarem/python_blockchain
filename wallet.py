@@ -3,7 +3,7 @@ import codecs
 import ecdsa
 import requests
 
-import lib.lib_wallet
+
 from lib import lib_cryptography
 from lib import lib_transactions
 
@@ -12,6 +12,7 @@ class Wallet():
         self.path_config = "config/config_wallet.json"
 
         self.get_config()
+        
 
     def get_config(self):
         with open(self.path_config, "r") as file:
@@ -75,24 +76,28 @@ class Wallet():
         transactions = req_transactions.json()
 
 
-        # Identifier les transactions dont leur tx_hash n'apparaît qu'une seule fois
+        # Identifier les transactions dont le tx_hash n'est pas utilisé dans un output
         free_transactions = []
 
         i = 0
         for transaction in transactions:
-            hash_ = transaction["transaction_headers"]["transaction_hash"]
+            tx_hash_ = transaction["transaction_headers"]["transaction_hash"]
             found = False
 
-            transactions_without_current = transactions[:]
-            del transactions_without_current[i]
-            for transaction2 in transactions_without_current:
-                if hash_ == transaction2["transaction_headers"]["transaction_hash"]:
-                    found = True
+            for transaction2 in transactions:
+                for input_ in transaction2["inputs"]:
+                    if tx_hash_ == input_["previous_tx"]:
+                        found = True
+                        break
+
+                if found == True:
+                    break
 
             if found == False:
                 free_transactions.append(transaction)
 
             i += 1
+
 
         # Creation of the transaction :
         transaction_used = []
@@ -137,17 +142,20 @@ class Wallet():
         req_send_transactions = requests.post(f"{self.node}/node/send_transaction", data=data)
         
         if req_send_transactions.status_code != 200:
-            print("ERROR", f"Node response : {req_send_transactions.text}")
+            return ["ERROR", f"Node response : {req_send_transactions.text}"]
 
         else:
-            print(req_send_transactions.text)
+            return ["Ok"]
 
 
     def list_address(self):
         text = ""
         for address in self.addresses:
+            # We get all transactions with from_addr
+            data = {"address":address}
+            req_transactions = requests.post(f"{self.node}/node/get_transactions", data=data)
             
-            
+
             text += f"{address} : {amount}\n"
 
 
@@ -184,7 +192,7 @@ class Cli:
             amount = int(input("Quantité de crypto : "))
             
             send_return = self.wallet.send_money(from_addr, from_private_key, to_addr, amount)
-            if send_return == "Ok":
+            if send_return[0] == "Ok":
                 print("Argent envoyé")
             else:
                 print(send_return)
@@ -194,12 +202,12 @@ if __name__ == "__main__":
     Cli()
 
     # wallet = Wallet()
-    # wallet.create_address()
-    # wallet.delete_address("ba0fb2e63a3ccf38312f94dc332f55abeba4e4d2ca1004da68222866b10d695b")
+    # # wallet.create_address()
+    # # wallet.delete_address("ba0fb2e63a3ccf38312f94dc332f55abeba4e4d2ca1004da68222866b10d695b")
     
     # from_addr = "1CmUXbYYgCFJu99xXB6hVz5qyUUhm95AeS"
     # from_private_key = "8528ee7d1bb67e9195c37ffb9551fe67d29bc382acf76956a19225676d207201"
     # to_addr = "1Bz3KJLQwHZ6kYSjBgHejVpxKFppP7ziT1"
-    # amount = 150
+    # amount = 49
     # a = wallet.send_money(from_addr, from_private_key, to_addr, amount)
     # print(a)
