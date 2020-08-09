@@ -2,6 +2,7 @@ import json
 import codecs
 import ecdsa
 import requests
+import sys
 
 
 from lib import lib_cryptography
@@ -12,7 +13,7 @@ class Wallet():
         self.path_config = "config/config_wallet.json"
 
         self.get_config()
-        
+
 
     def get_config(self):
         with open(self.path_config, "r") as file:
@@ -104,8 +105,12 @@ class Wallet():
         amount_left = int(amount)
 
         for transaction in free_transactions:
-            amount_in_tx = next((item for item in transaction["outputs"] if item["addr"] == from_addr), False)["amount"]
-            
+            amount_in_tx = next((item for item in transaction["outputs"] if item["addr"] == from_addr), False)
+            if amount_in_tx == False:
+                continue
+
+            amount_in_tx = amount_in_tx["amount"]
+
             if amount_left > 0:
                 transaction_used.append(
                     {"tx_hash":transaction["transaction_headers"]["transaction_hash"], 
@@ -148,15 +153,50 @@ class Wallet():
             return ["Ok"]
 
 
-    def list_address(self):
+    def list_addresses_amount(self):
         text = ""
         for address in self.addresses:
+            address = address["address"]
+
             # We get all transactions with from_addr
             data = {"address":address}
             req_transactions = requests.post(f"{self.node}/node/get_transactions", data=data)
-            
+            if req_transactions.status_code != 200:
+                return "ERROR", f"Node responce : {req_transactions.text}"
+
+            transactions = req_transactions.json()
+
+            # Identifier les transactions dont le tx_hash n'est pas utilisé dans un output
+            free_transactions = []
+            i = 0
+            for transaction in transactions:
+                tx_hash_ = transaction["transaction_headers"]["transaction_hash"]
+                found = False
+
+                for transaction2 in transactions:
+                    for input_ in transaction2["inputs"]:
+                        if tx_hash_ == input_["previous_tx"]:
+                            found = True
+                            break
+
+                    if found == True:
+                        break
+
+                if found == False:
+                    free_transactions.append(transaction)
+                i += 1
+
+            amount = 0
+            for transaction in free_transactions:
+                amount_in_tx = next((item for item in transaction["outputs"] if item["addr"] == address), False)
+                if amount_in_tx == False:
+                    continue
+                
+                amount_in_tx = amount_in_tx["amount"]
+                amount += int(amount_in_tx)
 
             text += f"{address} : {amount}\n"
+        return "Ok",text
 
 
 class Cli:
@@ -179,7 +219,11 @@ class Cli:
             print("address :",address)
 
         elif ask == "2":
-            print("En cours de dev")
+            return_ = self.wallet.list_addresses_amount()
+            if return_[0] != "Ok":
+                print(return_)
+            else:
+                print(return_[1])
 
         elif ask == "3":
             print("En cours de dev")
@@ -197,9 +241,15 @@ class Cli:
             else:
                 print(send_return)
 
+        input("Press ENTER to continue...")
+        print()
+
+
 
 if __name__ == "__main__":
     Cli()
+
+    # print(Wallet().list_addresses_amount()[1])
 
     # wallet = Wallet()
     # # wallet.create_address()
@@ -208,6 +258,6 @@ if __name__ == "__main__":
     # from_addr = "1CmUXbYYgCFJu99xXB6hVz5qyUUhm95AeS"
     # from_private_key = "8528ee7d1bb67e9195c37ffb9551fe67d29bc382acf76956a19225676d207201"
     # to_addr = "1Bz3KJLQwHZ6kYSjBgHejVpxKFppP7ziT1"
-    # amount = 49
+    # amount = 150
     # a = wallet.send_money(from_addr, from_private_key, to_addr, amount)
     # print(a)

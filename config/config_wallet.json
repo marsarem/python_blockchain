@@ -8,6 +8,10 @@
         {
             "private_key": "7a2c744a1abc96a11d3c20e414f5a66c29dc6c8f23aa521cf17d15a831fd4953",
             "address": "1Bz3KJLQwHZ6kYSjBgHejVpxKFppP7ziT1"
+        },
+        {
+            "private_key": "8528ee7d1bb67e9195c37ffb9551fe67d29bc382acf76956a19225676d207201",
+            "address": "1CmUXbYYgCFJu99xXB6hVz5qyUUhm95AeS"
         }
     ]
 }

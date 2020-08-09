@@ -123,15 +123,15 @@ class GetTransactions:
                         regex_output_tx = r"[0-9]+\nTo : ([A-z0-9]+)\nAmount : ([0-9]+)"
                         search_output_tx = re.findall(regex_output_tx, tx_outputs)
 
-                        input_txs = []
                         for i in range(len(search_output_tx)):
-                            sum_output += int(search_output_tx[i][1])
+                            amount_sent = int(search_output_tx[i][1])
+                            sum_output += amount_sent
+
                             address = search_output_tx[i][0]
 
                             list_outputs.append({
-                            "addr":addr_receiver, "amount":str(amount_sent)
+                            "addr":address, "amount":str(amount_sent)
                             })
-
 
                         # Input
                         sum_input = 0
@@ -139,7 +139,6 @@ class GetTransactions:
                         regex_input_tx = r"[0-9]+\nPrevious tx : ([A-z0-9]+)\nFrom : ([A-z0-9]+)\nAmount : ([0-9]+)\nPublic Key : ([A-z0-9]+)\nSignature : ([A-z0-9]+)"
                         search_input_tx = re.findall(regex_input_tx, tx_inputs)
 
-                        input_txs = []
                         for i in range(len(search_input_tx)):
                             amount = int(search_input_tx[i][2])
                             sum_input += amount
@@ -198,7 +197,6 @@ def get_transactions_for_addr(blocks, address):
 
         if is_address == True:
             transactions_with_addr.append(transaction)
-
     return transactions_with_addr
 
 
