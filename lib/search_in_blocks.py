@@ -220,7 +220,7 @@ def get_transactions_with_hash(blocks, hash_):
     return ["Not Found"]
 
 
-def get_transactions_with_hash_in_previous_tx(blocks, hash_):
+def get_transactions_with_hash_in_previous_tx(blocks, hash_, address):
 
     # Get all transactions from the blocks
     transactions = GetTransactions(blocks).get()
@@ -234,7 +234,7 @@ def get_transactions_with_hash_in_previous_tx(blocks, hash_):
 
         inputs = transaction["inputs"]
         for i in range(len(inputs)):
-            if inputs[i]["previous_tx"] == hash_:
+            if inputs[i]["previous_tx"] == hash_ and inputs[i]["addr"] == address:
                 return ["Found",transaction]
 
 

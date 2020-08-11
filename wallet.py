@@ -87,7 +87,7 @@ class Wallet():
 
             for transaction2 in transactions:
                 for input_ in transaction2["inputs"]:
-                    if tx_hash_ == input_["previous_tx"]:
+                    if tx_hash_ == input_["previous_tx"] and from_addr == input_["addr"]:
                         found = True
                         break
 
@@ -157,7 +157,7 @@ class Wallet():
         text = ""
         for address in self.addresses:
             address = address["address"]
-
+            
             # We get all transactions with from_addr
             data = {"address":address}
             req_transactions = requests.post(f"{self.node}/node/get_transactions", data=data)
@@ -175,7 +175,7 @@ class Wallet():
 
                 for transaction2 in transactions:
                     for input_ in transaction2["inputs"]:
-                        if tx_hash_ == input_["previous_tx"]:
+                        if tx_hash_ == input_["previous_tx"] and address == input_["addr"]:
                             found = True
                             break
 

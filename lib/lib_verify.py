@@ -165,6 +165,7 @@ class VerifyBlock:
 
                     input_txs = []
                     for i in range(len(search_input_tx)):
+                        address = search_input_tx[i][1]
                         sum_input += int(search_input_tx[i][2])
                         signature = search_input_tx[i][4]
                         public_key = search_input_tx[i][3]
@@ -194,7 +195,7 @@ class VerifyBlock:
                             return "ERROR", "Previous transaction not found"
 
                         # We check if the previous tx was not used before
-                        previous_tx_found = search_in_blocks.get_transactions_with_hash_in_previous_tx(blocks, previous_tx_hash)
+                        previous_tx_found = search_in_blocks.get_transactions_with_hash_in_previous_tx(blocks, previous_tx_hash, address)
                         if previous_tx_found[0] == "Found":
                             return "ERROR", "Previous transaction already spent"
 
@@ -268,6 +269,7 @@ class VerifyTransaction:
 
             input_txs = []
             for i in range(len(search_input_tx)):
+                address = search_input_tx[i][1]
                 sum_input += int(search_input_tx[i][2])
                 signature = search_input_tx[i][4]
                 public_key = search_input_tx[i][3]
@@ -297,7 +299,7 @@ class VerifyTransaction:
                     return "ERROR", "Previous transaction not found"
 
                 # We check if the previous tx was not used before
-                previous_tx_found = search_in_blocks.get_transactions_with_hash_in_previous_tx(blocks, previous_tx_hash)
+                previous_tx_found = search_in_blocks.get_transactions_with_hash_in_previous_tx(blocks, previous_tx_hash, address)
                 if previous_tx_found[0] == "Found":
                     return "ERROR", "Previous transaction already spent"
 
