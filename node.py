@@ -7,6 +7,7 @@ import sys
 import json
 
 from lib import lib_node
+from lib import lib_verify
 
 
 app = Flask(__name__)
@@ -148,18 +149,16 @@ def background_task():
                     if verification != "Ok":
                         print(verification)
 
+
                 # We get pending transactions
                 req = session.get(f"http://{node_remote}/node")
                 data_req = req.json()
                 pending_transactions_hash_remote = data_req["pending_transactions_hash"]
-                print(pending_transactions_hash_remote)
                 if pending_transactions_hash_remote == "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945":
-                    print("111")
                     continue
 
                 pending_transactions_hash_local = node.get_node_info()["pending_transactions_hash"]
                 pending_transactions_local = node.get_pending_transactions()[0]
-                print("local : ",pending_transactions_local)
 
                 if pending_transactions_hash_local != pending_transactions_hash_remote:
                     # print("OUI !!!")
@@ -175,11 +174,23 @@ def background_task():
                         if transaction in pending_transactions_local:
                             pending_transactions_remote.remove(transaction)
 
+
+                    # Delete all the transactions from the mined block that are in pending transactions
+                    pending_transactions = pending_transactions_remote
+                    if len(pending_transactions) > 0:
+                        new_pending_transactions = pending_transactions[:]
+                        list_transactions_hash = lib_verify.get_transactions_hash_in_block(block)
+                        for hash_ in list_transactions_hash:
+                            for pending_transaction in pending_transactions:
+                                if hash_ == pending_transaction["hash"]:
+                                    new_pending_transactions.remove(pending_transaction)
+
+
                     # On vérifie les transactions et on les ajoutes
                     # print("coucou")
-                    print(pending_transactions_remote)
-                    node.add_transactions_from_node(pending_transactions_remote)
-                    print(node.get_node_info())
+                    # print(pending_transactions_remote)
+                    node.add_transactions_from_node(new_pending_transactions)
+                    # print(node.get_node_info())
 
             except Exception as e:
                 raise e
