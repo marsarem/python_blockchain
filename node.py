@@ -142,6 +142,8 @@ def background_task():
                     list_blocks = temp_list_new_blocks[1:]
                     first_block_height = list_blocks[0]["height"]
                     previous_block_hash = temp_list_new_blocks[0]["hash"]
+                    print("list_blocks",list_blocks)
+                    print(first_block_height, previous_block_hash)
                     verification = node.verify_add_to_blockchain(list_blocks, first_block_height, previous_block_hash)
                     if verification[0] != "Ok":
                         print(verification)
