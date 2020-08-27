@@ -280,9 +280,9 @@ class LibNode:
 
 
     def add_transactions_from_node(self, transactions):
-        for i in transactions:
-            verify = self.add_transaction_from_node(transactions[i])
-            
+        for transaction in transactions:
+            verify = self.add_transaction_from_node(transaction)
+
 
 
     def get_transactions_with_addr_from_node(self, address):
