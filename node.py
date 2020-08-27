@@ -93,19 +93,20 @@ def background_task():
         node = lib_node.LibNode()
         time.sleep(10)
         for node_remote in node.list_nodes:
+            height_local_node = node.get_node_info()["height"]
             print(node_remote)
             try:
                 req = session.get(f"http://{node_remote}/node")
                 data_req = req.json()
-                height_node = data_req["height"]
-                if int(height_node) > int(node.height):
+                height_remote_node = data_req["height"]
+                if int(height_remote_node) > int(height_local_node):
                     # We ask for the last bloc we possibly share 
                     # On demande le dernier bloc en commun
                     # Si différent de notre dernier bloc : 
                     #     on demande celui d'avant
                     #     si différent : ....
 
-                    temp_height = node.height
+                    temp_height = height_local_node
                     temp_list_new_blocks = []
                     while True:
                         if temp_height == 1:
