@@ -167,21 +167,24 @@ def background_task():
 
                     # On supprime les transactions qui sont déjà dans notre liste
                     # print("----")
-                    print("remote : ",pending_transactions_remote)
-                    print("\n\n")
+                    # print("remote : ",pending_transactions_remote)
+                    # print("\n\n")
 
                     pending_transactions_local = node.get_pending_transactions()[0]
-                    print("local : ",pending_transactions_local)
-                    print("\n\n")
-                    
+                    # print("local : ",pending_transactions_local)
+                    # print("\n\n")
+
+                    pending_transactions_remote_temp = pending_transactions_remote[:]
                     for remote_transaction in pending_transactions_remote:
                         # print(transaction)
                         for local_transaction in pending_transactions_local:
-                            print(local_transaction["hash"], remote_transaction["hash"])
+                            # print(local_transaction["hash"], remote_transaction["hash"])
                             if local_transaction["hash"] == remote_transaction["hash"]:
                                 pending_transactions_remote.remove(remote_transaction)
-                    print("\n\n")
-                    print(pending_transactions_remote)
+                    # print("\n\n")
+                    # print(pending_transactions_remote)
+
+                    pending_transactions_remote = pending_transactions_remote_temp
 
                     if len(pending_transactions_remote) == 0:
                         continue
