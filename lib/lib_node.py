@@ -148,7 +148,8 @@ class LibNode:
         except Exception as e:
             print("ERROR init database")
             print(e)
-        list_nodes = self.database.list_nodes
+        print("111")
+        self.list_nodes = self.database.list_nodes
 
     #########
     # Interract to Database
@@ -365,7 +366,7 @@ class LibNode:
         actual_height = get_node_info()["height"]
         if int(first_block_height) <= int(actual_height):
             self.del_blocks(first_block_height)
-            
+
         self.add_blocks(list_blocks)
 
         return "Ok"
