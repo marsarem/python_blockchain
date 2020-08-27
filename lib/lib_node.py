@@ -345,7 +345,6 @@ class LibNode:
                 return ["Ok"]
                 try:
                     self.add_block(block_height, hash_, block)
-                    return ["Ok"]
                 except Exception as e:
                     return ["ERROR", e]
 
@@ -362,7 +361,6 @@ class LibNode:
                 
             try:
                 self.add_blocks(list_blocks)
-                return ["Ok"]
             except Exception as e:
                 return ["ERROR", e]
 
