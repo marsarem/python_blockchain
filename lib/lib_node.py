@@ -316,7 +316,10 @@ class LibNode:
                 for hash_ in list_transactions_hash:
                     for pending_transaction in pending_transactions:
                         if hash_ == pending_transaction["hash"]:
-                            new_pending_transactions.remove(pending_transaction)
+                            try:
+                                new_pending_transactions.remove(pending_transaction)
+                            except ValueError:
+                                pass
                 self.database.set_pending_transactions(new_pending_transactions)
 
 
