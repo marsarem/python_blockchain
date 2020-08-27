@@ -281,6 +281,7 @@ class LibNode:
 
     def add_transactions_from_node(self, transactions):
         for transaction in transactions:
+            print("AAA : ",transaction)
             verify = self.add_transaction_from_node(transaction)
 
 
