@@ -16,8 +16,6 @@ class Database:
         self.path_data_node = "config/config_node.json"
         self.path_pending_transactions = "data/transactions.json"
         self.path_blockchain = "data/blockchain.json"
-        # self.path_pending_transactions = "../data/transactions.json"
-        # self.path_blockchain = "../data/blockchain.json"
 
         self.blockchain_hash = self.get_blockchain_hash()
         self.pending_transactions_hash = self.get_pending_transactions_hash()
@@ -397,23 +395,5 @@ class LibNode:
         return "Ok"
 
 
-
-
-
-
-
 if __name__ == "__main__":
     print("Do not launch this file manually")
-
-    # with open("test.txt" , "r") as fichier:
-    #     data = fichier.read().split("\n--\n")
-    # list_blocks = [{
-    #     "hash":data[0], "block":data[1], "height":2
-    # }]
-    # lib_no = LibNode()
-    # a = lib_no.verify_blocks_from_node(list_blocks)
-    # print(a)
-
-    # with open("test2.txt", "r") as fichier:
-    #     transaction = fichier.read()
-    # print(LibNode().verify_transactions_from_node(transaction))

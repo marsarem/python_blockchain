@@ -80,13 +80,7 @@ api.add_resource(MinerGetMinedBlock, "/node/send_mined_block")
 
 api.add_resource(WalletSendTransaction, "/node/send_transaction")
 api.add_resource(WalletGetTransactions, "/node/get_transactions")
-# api.add_resource(WalletGet)
 
-
-# https://flask-restful.readthedocs.io/en/latest/quickstart.html
-# https://fr.wikipedia.org/wiki/Liste_des_codes_HTTP
-# https://github.com/satwikkansal/python_blockchain_app/blob/13ea6ee3859afc68305d86efa3977aabb4eb2e6b/node_server.py#L193
-# https://en.bitcoin.it/wiki/Network
 
 def background_task():
     session = requests.Session()
@@ -102,7 +96,6 @@ def background_task():
                 height_remote_node = data_req["height"]
                 if int(height_remote_node) > int(height_local_node):
                     print("Différence :",height_local_node, height_remote_node, node_remote)
-                    # We ask for the last bloc we possibly share 
                     # On demande le dernier bloc en commun
                     # Si différent de notre dernier bloc : 
                     #     on demande celui d'avant
@@ -120,10 +113,7 @@ def background_task():
                         req = requests.post(f"http://{node_remote}/node/get_blocks", data=data)
                         block = req.json()[0]
                         temp_list_new_blocks.append(block)
-
-                        # print("block: ",block)
-                        # print("node.get_blocks(temp_height, 1)",node.get_blocks(temp_height, 1))
-                        
+            
                         if block["hash"] == node.get_blocks(temp_height, 1)[0][0]["hash"]:
                             # print("Meme",temp_height)
                             break
@@ -137,14 +127,11 @@ def background_task():
                     del blocks[0]
                     temp_list_new_blocks.extend(blocks)
 
-                    # print("temp_list_new_blocks",temp_list_new_blocks)
 
                     # Verification + ajout à la blockchain
                     list_blocks = temp_list_new_blocks[1:]
                     first_block_height = list_blocks[0]["height"]
                     previous_block_hash = temp_list_new_blocks[0]["hash"]
-                    # print("list_blocks",list_blocks)
-                    # print(first_block_height, previous_block_hash)
                     verification = node.verify_add_to_blockchain(list_blocks, first_block_height, previous_block_hash)
                     if verification != "Ok":
                         print(verification)
@@ -159,20 +146,10 @@ def background_task():
 
                 pending_transactions_hash_local = node.get_node_info()["pending_transactions_hash"]
                 if pending_transactions_hash_local != pending_transactions_hash_remote:
-                    # print("OUI !!!")
                     req = session.get(f"http://{node_remote}/node/get_pending_transactions")
                     pending_transactions_remote = req.json()
 
-                    # print(pending_transactions_remote)
-
-                    # On supprime les transactions qui sont déjà dans notre liste
-                    # print("----")
-                    # print("remote : ",pending_transactions_remote)
-                    # print("\n\n")
-
                     pending_transactions_local = node.get_pending_transactions()[0]
-                    # print("local : ",pending_transactions_local)
-                    # print("\n\n")
 
                     pending_transactions_remote_temp = pending_transactions_remote[:]
                     for remote_transaction in pending_transactions_remote:
@@ -181,30 +158,13 @@ def background_task():
                             # print(local_transaction["hash"], remote_transaction["hash"])
                             if local_transaction["hash"] == remote_transaction["hash"]:
                                 pending_transactions_remote_temp.remove(remote_transaction)
-                    # print("\n\n")
-                    # print(pending_transactions_remote)
 
                     pending_transactions_remote = pending_transactions_remote_temp
 
                     if len(pending_transactions_remote) == 0:
                         continue
 
-                    # # Delete all the transactions from the mined block that are in pending transactions
-                    # pending_transactions = pending_transactions_remote
-                    # if len(pending_transactions) > 0:
-                    #     new_pending_transactions = pending_transactions[:]
-                    #     list_transactions_hash = lib_verify.get_transactions_hash_in_block(block)
-                    #     for hash_ in list_transactions_hash:
-                    #         for pending_transaction in pending_transactions:
-                    #             if hash_ == pending_transaction["hash"]:
-                    #                 new_pending_transactions.remove(pending_transaction)
-
-
-                    # On vérifie les transactions et on les ajoutes
-                    # print("coucou")
-                    # print(pending_transactions_remote)
                     node.add_transactions_from_node(pending_transactions_remote)
-                    # print(node.get_node_info())
 
             except Exception as e:
                 print(e)
@@ -230,9 +190,10 @@ if __name__ == '__main__':
                         # It must be False if you start a new blockchain
 
     # Check if node needs to be sync :
-    print(node.get_node_info()["height"])
+    print("SYNC STARTED...")
     if node.get_node_info()["height"] == "0":
         sync(node.list_nodes[0])
+        print("SYNC SUCCESSFUL")
 
 
     process = Process(
