@@ -129,6 +129,12 @@ def background_task():
                         else:
                             temp_height -= 1
 
+                    # On recup la liste des blocs > height_local_node
+                    data = {"height":height_local_node, "number":"-1"}
+                    req = requests.post(f"http://{node_remote}/node/get_blocks", data=data)
+                    block = req.json()
+                    temp_list_new_blocks.extend(block)
+
                     print("temp_list_new_blocks",temp_list_new_blocks)
 
                     # Verification + ajout à la blockchain
