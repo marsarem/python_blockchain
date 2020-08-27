@@ -170,13 +170,16 @@ def background_task():
                     # On supprime les transactions qui sont déjà dans notre liste
                     # print("----")
                     print(pending_transactions_remote)
+                    print("\n\n")
                     for remote_transaction in pending_transactions_remote:
                         # print(transaction)
                         for local_transaction in pending_transactions_local:
+                            print(local_transaction["hash"], remote_transaction["hash"])
                             if local_transaction["hash"] == remote_transaction["hash"]:
                                 pending_transactions_remote.remove(remote_transaction)
+                    print("\n\n")
                     print(pending_transactions_remote)
-                    
+
                     if len(pending_transactions_remote) == 0:
                         continue
 
