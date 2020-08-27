@@ -357,7 +357,7 @@ class LibNode:
         return ["Ok"]
 
 
-    def verify_add_to_blockchain(list_blocks, first_block_height, previous_block_hash):
+    def verify_add_to_blockchain(self, list_blocks, first_block_height, previous_block_hash):
         verification = verify_blocks(list_blocks, previous_block_hash, first_block_height)
         if verification[0] != "Ok":
             return verification
