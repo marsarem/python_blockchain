@@ -1,3 +1,4 @@
 {
-	"list_nodes":["localhost:5000"]
+	"list_nodes":[],
+	"port":"5000"
 }

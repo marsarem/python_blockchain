@@ -2,6 +2,8 @@ from flask import Flask
 from flask_restful import reqparse, abort, Api, Resource
 from multiprocessing import Process
 import time
+import requests
+import sys
 
 from lib import lib_node
 
@@ -67,7 +69,7 @@ class WalletGetTransactions(Resource):
         return data, code
 
 
-api.add_resource(Node, "/node")
+api.add_resource(Node, "/node", "/")
 api.add_resource(NodeGetBlocks, "/node/get_blocks")
 api.add_resource(NodeGetAllBlocks, "/node/get_all_blocks")
 api.add_resource(NodeGetPendingTransactions, "/node/get_pending_transactions")
@@ -84,22 +86,83 @@ api.add_resource(WalletGetTransactions, "/node/get_transactions")
 # https://github.com/satwikkansal/python_blockchain_app/blob/13ea6ee3859afc68305d86efa3977aabb4eb2e6b/node_server.py#L193
 # https://en.bitcoin.it/wiki/Network
 
-# def recup_data_other_nodes():
-#     while True:
-#         node = lib_node.LibNode()
-#         time.sleep(10)
-#         print("avant")
-#         node.add_block(str(int(node.get_node_info()["height"])+1), "hash4", "block")
-#         print("apres")
+def background_task():
+    session = requests.Session()
+    while True:
+        node = lib_node.LibNode()
+        time.sleep(10)
+        for node_remote in node.list_nodes:
+            print(node_remote)
+            try:
+                req = session.get(f"http://{node_remote}/node")
+                data_req = req.json()
+                height_node = data_req["height"]
+                if int(height_node) > int(node.height):
+                    # We ask for the last bloc we possibly share 
+                    # On demande le dernier bloc en commun
+                    # Si différent de notre dernier bloc : 
+                    #     on demande celui d'avant
+                    #     si différent : ....
+
+                    temp_height = node.height
+                    temp_list_new_blocks = []
+                    while True:
+                        if temp_height == 1:
+                            print(f"CANNOT SYNC WITH {height_node}. The blockchain is entirely different.")
+                            print("Please remove it from the list of nodes.")
+                            
+                        data = {"height":temp_height, "number":"1"}
+                        req = requests.post(f"http://{node_remote}/node/get_blocks", data=data)
+                        block = req.json()
+                        temp_list_new_blocks.append(block)
+                        if block["hash"] == node.get_blocks(temp_height, 1)[0]["hash"]:
+                            break
+                        else:
+                            temp_height -= 1
+
+                    # Verification + ajout à la blockchain
+                    list_blocks = temp_list_new_blocks[1:]
+                    first_block_height = list_blocks[1]["height"]
+                    previous_block_hash = list_blocks[0]["hash"]
+                    verification = node.verify_add_to_blockchain(list_blocks, first_block_height, previous_block_hash)
+                    if verification[0] != "Ok":
+                        print(verification)
+
+
+            except Exception as e:
+                print(e)
+                # Amélioration possible : si trop d'erreur avec un node,
+                # on peut le supprimer de la liste ou le mettre sur une liste 
+                # des nodes offline
+
+def sync(url_node):
+    try:
+        session = requests.Session()
+        req = session.get(f"http://{url_node}/node/get_all_blocks")
+        blocks = req.json()
+        node.add_blocks(blocks)
+    except Exception as e:
+        print(e)
+        print("SYNC FAILED !!!!")
+        sys.exit(0)
 
 
 if __name__ == '__main__':
-    # process = Process(
-    #     target=background_task,
-    #     daemon=True)
-    # process.start()
+    allow_sync = True   # You can choose to sync or not. 
+                        # It must be False if you start a new blockchain
+
+    # Check if node needs to be sync :
+    if node["height"] == 0:
+        sync(node.list_nodes[0])
+
+
+    process = Process(
+        target=background_task,
+        daemon=True)
+    process.start()
     
-    app.run(debug=True, use_reloader=False) 
+
+    app.run(debug=True, use_reloader=False) #, port=8888) 
 
     # If we set use_realoader = True, it will launch 2 deamon process
     # http://blog.davidvassallo.me/2013/10/23/nugget-post-python-flask-framework-and-multiprocessing/

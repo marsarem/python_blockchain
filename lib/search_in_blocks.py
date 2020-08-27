@@ -10,8 +10,7 @@ A quoi sert ce fichier ?
 
 
 class GetTransactions:
-    def __init__(self, blocks): #, address="", tx_hash=""):
-        # self.address = address
+    def __init__(self, blocks):
         self.blocks = blocks 
 
         blocks = []

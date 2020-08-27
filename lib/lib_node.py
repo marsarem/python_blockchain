@@ -25,6 +25,8 @@ class Database:
         self.coinbase = "100"
         self.diff = "0000"
 
+        self.list_nodes = self.get_list_nodes()
+
         self.initialize_last_hash_height()
 
     def detect_changes(self):
@@ -146,6 +148,11 @@ class LibNode:
         except Exception as e:
             print("ERROR init database")
             print(e)
+        list_nodes = self.database.list_nodes
+
+    #########
+    # Interract to Database
+    #########
 
     def detect_changes(self):
         self.database.detect_changes()
@@ -226,6 +233,10 @@ class LibNode:
         self.database.add_pending_transaction(hash_, transaction)
         
 
+    def del_blocks(self, height):
+        self.detect_changes()
+        self.database.del_blocks(height)
+
 
     ####
     # Verify blocks and pending transactions
@@ -244,42 +255,6 @@ class LibNode:
         verif_block = verify.verify_block()
         if verif_block[0] != "Ok":
             return verif_block
-
-        return ["Ok"]
-
-
-    def verify_blocks_from_node(self, list_blocks):
-        node_infos = self.get_node_info()
-        previous_block_hash = node_infos["last_block_hash"]
-        block_height = int(node_infos["height"])
-
-        if len(list_blocks) == 1:
-            block = list_blocks[0]["block"]
-            hash_ = list_blocks[0]["hash"]
-            verify_block = self.verify_one_block(block, hash_, previous_block_hash, block_height+1)
-            if verify_block[0] != "Ok":
-                # Here we can make a system of reputation for nodes. Too many bad blocks lead to a blacklist
-                return verify_block
-            else:
-                try:
-                    self.add_block(block_height+1, hash_, block)
-                    return ["Ok"]
-                except Exception as e:
-                    return ["ERROR", e]
-
-        else:
-            for i in range(len(list_blocks)):
-                verify_block = self.verify_one_block(list_blocks[i]["block"], list_blocks[i]["hash"], previous_block_hash, block_height)
-                if verify_block[0] != "Ok":
-                    return verify_block
-                previous_block_hash = list_blocks[i]["hash"]
-                block_height = list_blocks[i]["height"]
-
-            try:
-                self.add_blocks(list_blocks)
-                return ["Ok"]
-            except Exception as e:
-                return ["ERROR", e]
 
         return ["Ok"]
 
@@ -343,6 +318,61 @@ class LibNode:
         except Exception as e:
             raise e
             return f"ERROR : {e}", 500
+
+
+    #################
+    # Data recieved fom other node
+    #################
+
+    def verify_blocks(self, list_blocks, previous_block_hash, block_height):
+        if len(list_blocks) == 1:
+            block = list_blocks[0]["block"]
+            hash_ = list_blocks[0]["hash"]
+            verify_block = self.verify_one_block(block, hash_, previous_block_hash, block_height+1)
+            if verify_block[0] != "Ok":
+                # Here we can make a system of reputation for nodes. Too many bad blocks lead to a blacklist
+                return verify_block
+            else:
+                return ["Ok"]
+                try:
+                    self.add_block(block_height+1, hash_, block)
+                    return ["Ok"]
+                except Exception as e:
+                    return ["ERROR", e]
+
+        else:
+            for i in range(len(list_blocks)):
+                verify_block = self.verify_one_block(list_blocks[i]["block"], list_blocks[i]["hash"], previous_block_hash, block_height)
+                if verify_block[0] != "Ok":
+                    return verify_block
+                previous_block_hash = list_blocks[i]["hash"]
+                block_height = list_blocks[i]["height"]
+
+            try:
+                self.add_blocks(list_blocks)
+                return ["Ok"]
+            except Exception as e:
+                return ["ERROR", e]
+
+        return ["Ok"]
+
+
+    def verify_add_to_blockchain(list_blocks, first_block_height, previous_block_hash):
+        verification = verify_blocks(list_blocks, previous_block_hash, first_block_height)
+        if verification[0] != "Ok":
+            return verification
+        
+        actual_height = get_node_info()["height"]
+        if int(first_block_height) <= int(actual_height):
+            self.del_blocks(first_block_height)
+            
+        self.add_blocks(list_blocks)
+
+        return "Ok"
+
+
+
+
 
 
 
