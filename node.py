@@ -113,19 +113,23 @@ def background_task():
                         if temp_height == 1:
                             print(f"CANNOT SYNC WITH {height_node}. The blockchain is entirely different.")
                             print("Please remove it from the list of nodes.")
-                            
+                        print(temp_height)
+
                         data = {"height":temp_height, "number":"1"}
                         req = requests.post(f"http://{node_remote}/node/get_blocks", data=data)
                         block = req.json()[0]
                         temp_list_new_blocks.append(block)
-                        print(block)
-                        print(node.get_blocks(temp_height, 1))
+
+                        print("block: ",block)
+                        print("node.get_blocks(temp_height, 1)",node.get_blocks(temp_height, 1))
+                        
                         if block["hash"] == node.get_blocks(temp_height, 1)[0][0]["hash"]:
+                            print("Meme",temp_height)
                             break
                         else:
                             temp_height -= 1
 
-                    print(temp_list_new_blocks)
+                    print("temp_list_new_blocks",temp_list_new_blocks)
 
                     # Verification + ajout à la blockchain
                     list_blocks = temp_list_new_blocks[1:]
