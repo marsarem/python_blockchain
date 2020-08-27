@@ -100,7 +100,7 @@ def background_task():
                 data_req = req.json()
                 height_remote_node = data_req["height"]
                 if int(height_remote_node) > int(height_local_node):
-                    print("Différence :",height_local_node, height_remote_node)
+                    # print("Différence :",height_local_node, height_remote_node)
                     # We ask for the last bloc we possibly share 
                     # On demande le dernier bloc en commun
                     # Si différent de notre dernier bloc : 
@@ -113,18 +113,18 @@ def background_task():
                         if temp_height == 1:
                             print(f"CANNOT SYNC WITH {height_node}. The blockchain is entirely different.")
                             print("Please remove it from the list of nodes.")
-                        print(temp_height)
+                        # print(temp_height)
 
                         data = {"height":temp_height, "number":"1"}
                         req = requests.post(f"http://{node_remote}/node/get_blocks", data=data)
                         block = req.json()[0]
                         temp_list_new_blocks.append(block)
 
-                        print("block: ",block)
-                        print("node.get_blocks(temp_height, 1)",node.get_blocks(temp_height, 1))
+                        # print("block: ",block)
+                        # print("node.get_blocks(temp_height, 1)",node.get_blocks(temp_height, 1))
                         
                         if block["hash"] == node.get_blocks(temp_height, 1)[0][0]["hash"]:
-                            print("Meme",temp_height)
+                            # print("Meme",temp_height)
                             break
                         else:
                             temp_height -= 1
@@ -136,21 +136,20 @@ def background_task():
                     del blocks[0]
                     temp_list_new_blocks.extend(blocks)
 
-                    print("temp_list_new_blocks",temp_list_new_blocks)
+                    # print("temp_list_new_blocks",temp_list_new_blocks)
 
                     # Verification + ajout à la blockchain
                     list_blocks = temp_list_new_blocks[1:]
                     first_block_height = list_blocks[0]["height"]
                     previous_block_hash = temp_list_new_blocks[0]["hash"]
-                    print("list_blocks",list_blocks)
-                    print(first_block_height, previous_block_hash)
+                    # print("list_blocks",list_blocks)
+                    # print(first_block_height, previous_block_hash)
                     verification = node.verify_add_to_blockchain(list_blocks, first_block_height, previous_block_hash)
                     if verification[0] != "Ok":
                         print(verification)
 
 
             except Exception as e:
-                raise e
                 print(e)
                 # Amélioration possible : si trop d'erreur avec un node,
                 # on peut le supprimer de la liste ou le mettre sur une liste 
