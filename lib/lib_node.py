@@ -342,7 +342,6 @@ class LibNode:
                 # Here we can make a system of reputation for nodes. Too many bad blocks lead to a blacklist
                 return verify_block
             else:
-                return ["Ok"]
                 try:
                     self.add_block(block_height, hash_, block)
                 except Exception as e:
