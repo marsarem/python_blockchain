@@ -100,6 +100,7 @@ def background_task():
                 data_req = req.json()
                 height_remote_node = data_req["height"]
                 if int(height_remote_node) > int(height_local_node):
+                    print("Différence :",height_local_node, height_remote_node)
                     # We ask for the last bloc we possibly share 
                     # On demande le dernier bloc en commun
                     # Si différent de notre dernier bloc : 
@@ -132,6 +133,7 @@ def background_task():
 
 
             except Exception as e:
+                raise e
                 print(e)
                 # Amélioration possible : si trop d'erreur avec un node,
                 # on peut le supprimer de la liste ou le mettre sur une liste 
