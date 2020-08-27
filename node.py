@@ -120,7 +120,7 @@ def background_task():
                         temp_list_new_blocks.append(block)
                         print(block)
                         print(node.get_blocks(temp_height, 1))
-                        if block["hash"] == node.get_blocks(temp_height, 1)[0]["hash"]:
+                        if block["hash"] == node.get_blocks(temp_height, 1)[0][0]["hash"]:
                             break
                         else:
                             temp_height -= 1
