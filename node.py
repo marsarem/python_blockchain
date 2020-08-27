@@ -152,8 +152,9 @@ def background_task():
                 req = session.get(f"http://{node_remote}/node")
                 data_req = req.json()
                 pending_transactions_hash_remote = data_req["pending_transactions_hash"]
-
+                print(pending_transactions_hash_remote)
                 if pending_transactions_hash_remote != "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945":
+                    print("111")
                     continue
 
                 pending_transactions_hash_local = node.get_node_info()["pending_transactions_hash"]
