@@ -42,9 +42,7 @@ class VerifyBlock:
             block_number = re.findall(r"Block ([0-9]*)", block_number)
             if block_number == []:
                 return "ERROR", "Error block number not found"
-            print(block_number)
             if int(block_number[0]) != self.block_height:
-                print(int(block_number[0]), self.block_height)
                 return "ERROR", "Error block number"
  
             # Previous block hash
