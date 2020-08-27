@@ -177,6 +177,7 @@ def background_task():
                     print(node.get_node_info())
 
             except Exception as e:
+                raise e
                 print(e)
                 # Amélioration possible : si trop d'erreur avec un node,
                 # on peut le supprimer de la liste ou le mettre sur une liste 
