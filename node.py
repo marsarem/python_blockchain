@@ -2,8 +2,12 @@ from flask import Flask
 from flask_restful import reqparse, abort, Api, Resource
 from multiprocessing import Process
 import time
+import requests
+import sys
+import json
 
 from lib import lib_node
+from lib import lib_verify
 
 
 app = Flask(__name__)
@@ -67,7 +71,7 @@ class WalletGetTransactions(Resource):
         return data, code
 
 
-api.add_resource(Node, "/node")
+api.add_resource(Node, "/node", "/")
 api.add_resource(NodeGetBlocks, "/node/get_blocks")
 api.add_resource(NodeGetAllBlocks, "/node/get_all_blocks")
 api.add_resource(NodeGetPendingTransactions, "/node/get_pending_transactions")
@@ -76,30 +80,133 @@ api.add_resource(MinerGetMinedBlock, "/node/send_mined_block")
 
 api.add_resource(WalletSendTransaction, "/node/send_transaction")
 api.add_resource(WalletGetTransactions, "/node/get_transactions")
-# api.add_resource(WalletGet)
 
 
-# https://flask-restful.readthedocs.io/en/latest/quickstart.html
-# https://fr.wikipedia.org/wiki/Liste_des_codes_HTTP
-# https://github.com/satwikkansal/python_blockchain_app/blob/13ea6ee3859afc68305d86efa3977aabb4eb2e6b/node_server.py#L193
-# https://en.bitcoin.it/wiki/Network
+def background_task():
+    session = requests.Session()
+    while True:
+        node = lib_node.LibNode()
+        time.sleep(10)
+        for node_remote in node.list_nodes:
+            height_local_node = node.get_node_info()["height"]
+            # print(node_remote)
+            try:
+                req = session.get(f"http://{node_remote}/node")
+                data_req = req.json()
+                height_remote_node = data_req["height"]
+                if int(height_remote_node) > int(height_local_node):
+                    print("Différence :",height_local_node, height_remote_node, node_remote)
+                    # On demande le dernier bloc en commun
+                    # Si différent de notre dernier bloc : 
+                    #     on demande celui d'avant
+                    #     si différent : ....
 
-# def recup_data_other_nodes():
-#     while True:
-#         node = lib_node.LibNode()
-#         time.sleep(10)
-#         print("avant")
-#         node.add_block(str(int(node.get_node_info()["height"])+1), "hash4", "block")
-#         print("apres")
+                    temp_height = height_local_node
+                    temp_list_new_blocks = []
+                    while True:
+                        if temp_height == 1:
+                            print(f"CANNOT SYNC WITH {height_node}. The blockchain is entirely different.")
+                            print("Please remove it from the list of nodes.")
+                        # print(temp_height)
+
+                        data = {"height":temp_height, "number":"1"}
+                        req = requests.post(f"http://{node_remote}/node/get_blocks", data=data)
+                        block = req.json()[0]
+                        temp_list_new_blocks.append(block)
+            
+                        if block["hash"] == node.get_blocks(temp_height, 1)[0][0]["hash"]:
+                            # print("Meme",temp_height)
+                            break
+                        else:
+                            temp_height -= 1
+
+                    # On recup la liste des blocs > height_local_node
+                    data = {"height":height_local_node, "number":"-1"}
+                    req = requests.post(f"http://{node_remote}/node/get_blocks", data=data)
+                    blocks = req.json()
+                    del blocks[0]
+                    temp_list_new_blocks.extend(blocks)
+
+
+                    # Verification + ajout à la blockchain
+                    list_blocks = temp_list_new_blocks[1:]
+                    first_block_height = list_blocks[0]["height"]
+                    previous_block_hash = temp_list_new_blocks[0]["hash"]
+                    verification = node.verify_add_to_blockchain(list_blocks, first_block_height, previous_block_hash)
+                    if verification != "Ok":
+                        print(verification)
+
+
+                # We get pending transactions
+                req = session.get(f"http://{node_remote}/node")
+                data_req = req.json()
+                pending_transactions_hash_remote = data_req["pending_transactions_hash"]
+                if pending_transactions_hash_remote == "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945":
+                    continue
+
+                pending_transactions_hash_local = node.get_node_info()["pending_transactions_hash"]
+                if pending_transactions_hash_local != pending_transactions_hash_remote:
+                    req = session.get(f"http://{node_remote}/node/get_pending_transactions")
+                    pending_transactions_remote = req.json()
+
+                    pending_transactions_local = node.get_pending_transactions()[0]
+
+                    pending_transactions_remote_temp = pending_transactions_remote[:]
+                    for remote_transaction in pending_transactions_remote:
+                        # print(transaction)
+                        for local_transaction in pending_transactions_local:
+                            # print(local_transaction["hash"], remote_transaction["hash"])
+                            if local_transaction["hash"] == remote_transaction["hash"]:
+                                pending_transactions_remote_temp.remove(remote_transaction)
+
+                    pending_transactions_remote = pending_transactions_remote_temp
+
+                    if len(pending_transactions_remote) == 0:
+                        continue
+
+                    node.add_transactions_from_node(pending_transactions_remote)
+
+            except Exception as e:
+                print(e)
+                # Amélioration possible : si trop d'erreur avec un node,
+                # on peut le supprimer de la liste ou le mettre sur une liste 
+                # des nodes offline
+
+def sync(url_node):
+    try:
+        session = requests.Session()
+        req = session.get(f"http://{url_node}/node/get_all_blocks")
+        blocks = req.json()
+        del blocks[0]
+        node.add_blocks(blocks)
+    except Exception as e:
+        print(e)
+        print("SYNC FAILED !!!!")
+        sys.exit(0)
 
 
 if __name__ == '__main__':
-    # process = Process(
-    #     target=background_task,
-    #     daemon=True)
-    # process.start()
+    allow_sync = True   # You can choose to sync or not. 
+                        # It must be False if you start a new blockchain
+
+    # Check if node needs to be sync :
+    print("SYNC STARTED...")
+    if node.get_node_info()["height"] == "0":
+        sync(node.list_nodes[0])
+        print("SYNC SUCCESSFUL")
+
+
+    process = Process(
+        target=background_task,
+        daemon=True)
+    process.start()
     
-    app.run(debug=True, use_reloader=False) 
+    with open("config/config_node.json", "r") as fichier:
+        data = json.load(fichier)
+
+    port = data["port"]    
+
+    app.run(debug=True, use_reloader=False, port=port) 
 
     # If we set use_realoader = True, it will launch 2 deamon process
     # http://blog.davidvassallo.me/2013/10/23/nugget-post-python-flask-framework-and-multiprocessing/
