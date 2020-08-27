@@ -174,16 +174,18 @@ def background_task():
                         if transaction in pending_transactions_local:
                             pending_transactions_remote.remove(transaction)
 
+                    if len(pending_transactions_remote) == 0:
+                        continue
 
-                    # Delete all the transactions from the mined block that are in pending transactions
-                    pending_transactions = pending_transactions_remote
-                    if len(pending_transactions) > 0:
-                        new_pending_transactions = pending_transactions[:]
-                        list_transactions_hash = lib_verify.get_transactions_hash_in_block(block)
-                        for hash_ in list_transactions_hash:
-                            for pending_transaction in pending_transactions:
-                                if hash_ == pending_transaction["hash"]:
-                                    new_pending_transactions.remove(pending_transaction)
+                    # # Delete all the transactions from the mined block that are in pending transactions
+                    # pending_transactions = pending_transactions_remote
+                    # if len(pending_transactions) > 0:
+                    #     new_pending_transactions = pending_transactions[:]
+                    #     list_transactions_hash = lib_verify.get_transactions_hash_in_block(block)
+                    #     for hash_ in list_transactions_hash:
+                    #         for pending_transaction in pending_transactions:
+                    #             if hash_ == pending_transaction["hash"]:
+                    #                 new_pending_transactions.remove(pending_transaction)
 
 
                     # On vérifie les transactions et on les ajoutes
