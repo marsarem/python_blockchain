@@ -161,8 +161,12 @@ if __name__ == '__main__':
         daemon=True)
     process.start()
     
+    with open("config/config_node.json", "r") as fichier:
+        data = json.load(fichier)
 
-    app.run(debug=True, use_reloader=False) #, port=8888) 
+    port = data["port"]    
+
+    app.run(debug=True, use_reloader=False, port=port) 
 
     # If we set use_realoader = True, it will launch 2 deamon process
     # http://blog.davidvassallo.me/2013/10/23/nugget-post-python-flask-framework-and-multiprocessing/
