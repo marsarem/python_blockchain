@@ -95,7 +95,12 @@ A FAIRE !!!!!!!!!!!!!!!!!!!!!
 
 
 """
+"""
+Doc pour cette partie. Car flemme de la faire dans un vrai document.
+Je vais gérer les transactions pending de manière dégeulasse mais bon tant pis.
 
+
+"""
 
 
 def background_task():
@@ -105,13 +110,13 @@ def background_task():
         time.sleep(10)
         for node_remote in node.list_nodes:
             height_local_node = node.get_node_info()["height"]
-            print(node_remote)
+            # print(node_remote)
             try:
                 req = session.get(f"http://{node_remote}/node")
                 data_req = req.json()
                 height_remote_node = data_req["height"]
                 if int(height_remote_node) > int(height_local_node):
-                    print("Différence :",height_local_node, height_remote_node)
+                    print("Différence :",height_local_node, height_remote_node, node_remote)
                     # We ask for the last bloc we possibly share 
                     # On demande le dernier bloc en commun
                     # Si différent de notre dernier bloc : 
@@ -158,6 +163,26 @@ def background_task():
                     verification = node.verify_add_to_blockchain(list_blocks, first_block_height, previous_block_hash)
                     if verification != "Ok":
                         print(verification)
+
+                # We get pending transactions
+                req = session.get(f"http://{node_remote}/node")
+                data_req = req.json()
+                pending_transactions_hash_remote = data_req["pending_transactions_hash"]
+
+                pending_transactions_hash_local = node.get_node_info()["pending_transactions_hash"]
+                pending_transactions_local = node.get_pending_transactions()[0]
+
+                if pending_transactions_hash_local != pending_transactions_hash_remote:
+                    req = session.get(f"http://{node_remote}/node/get_pending_transactions")
+                    pending_transactions_remote = req.json()
+
+                    # On supprime les transactions qui sont déjà dans notre liste
+                    for transaction in pending_transactions_remote:
+                        if transaction in pending_transactions_local:
+                            pending_transactions_remote.remove(transaction)
+
+                    # On vérifie les transactions et on les ajoutes
+                    node.add_transactions_from_node(pending_transactions_remote)
 
 
             except Exception as e:

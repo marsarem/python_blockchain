@@ -279,6 +279,12 @@ class LibNode:
             return "ERROR", 500
 
 
+    def add_transactions_from_node(self, transactions):
+        for i in transactions:
+            verify = self.add_transaction_from_node(transactions[i])
+            
+
+
     def get_transactions_with_addr_from_node(self, address):
         try:
             blocks = self.get_all_blocks()[0]
