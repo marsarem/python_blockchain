@@ -116,7 +116,7 @@ def background_task():
                             
                         data = {"height":temp_height, "number":"1"}
                         req = requests.post(f"http://{node_remote}/node/get_blocks", data=data)
-                        block = req.json()
+                        block = req.json()[0]
                         temp_list_new_blocks.append(block)
                         if block["hash"] == node.get_blocks(temp_height, 1)[0]["hash"]:
                             break
