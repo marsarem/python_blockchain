@@ -218,6 +218,7 @@ def sync(url_node):
         session = requests.Session()
         req = session.get(f"http://{url_node}/node/get_all_blocks")
         blocks = req.json()
+        del blocks[0]
         node.add_blocks(blocks)
     except Exception as e:
         print(e)
