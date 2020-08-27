@@ -371,7 +371,7 @@ class LibNode:
 
             list_transactions_hash = []
             for block in list_blocks:
-                list_transactions_hash.extend(lib_verify.get_transactions_hash_in_block(list_blocks))
+                list_transactions_hash.extend(lib_verify.get_transactions_hash_in_block(block))
 
             for hash_ in list_transactions_hash:
                 for pending_transaction in pending_transactions:
