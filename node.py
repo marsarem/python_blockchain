@@ -91,6 +91,7 @@ def background_task():
     session = requests.Session()
     while True:
         node = lib_node.LibNode()
+        print(node.get_node_info())
         time.sleep(10)
         for node_remote in node.list_nodes:
             height_local_node = node.get_node_info()["height"]
@@ -167,7 +168,7 @@ def background_task():
 
                     # On vérifie les transactions et on les ajoutes
                     node.add_transactions_from_node(pending_transactions_remote)
-
+                    print(node.get_node_info())
 
             except Exception as e:
                 print(e)
