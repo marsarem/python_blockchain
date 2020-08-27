@@ -328,14 +328,14 @@ class LibNode:
         if len(list_blocks) == 1:
             block = list_blocks[0]["block"]
             hash_ = list_blocks[0]["hash"]
-            verify_block = self.verify_one_block(block, hash_, previous_block_hash, block_height+1)
+            verify_block = self.verify_one_block(block, hash_, previous_block_hash, block_height)
             if verify_block[0] != "Ok":
                 # Here we can make a system of reputation for nodes. Too many bad blocks lead to a blacklist
                 return verify_block
             else:
                 return ["Ok"]
                 try:
-                    self.add_block(block_height+1, hash_, block)
+                    self.add_block(block_height, hash_, block)
                     return ["Ok"]
                 except Exception as e:
                     return ["ERROR", e]
@@ -351,7 +351,6 @@ class LibNode:
                     return verify_block
                 previous_block_hash = list_blocks[i]["hash"]
                 
-
             try:
                 self.add_blocks(list_blocks)
                 return ["Ok"]
