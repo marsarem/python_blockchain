@@ -180,7 +180,7 @@ def background_task():
                         for local_transaction in pending_transactions_local:
                             # print(local_transaction["hash"], remote_transaction["hash"])
                             if local_transaction["hash"] == remote_transaction["hash"]:
-                                pending_transactions_remote.remove(remote_transaction)
+                                pending_transactions_remote_temp.remove(remote_transaction)
                     # print("\n\n")
                     # print(pending_transactions_remote)
 
