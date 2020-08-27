@@ -368,7 +368,11 @@ class LibNode:
         print("pending transactions : ", pending_transactions)
         if len(pending_transactions) > 0:
             new_pending_transactions = pending_transactions[:]
-            list_transactions_hash = lib_verify.get_transactions_hash_in_block(list_blocks)
+
+            list_transactions_hash = []
+            for block in list_blocks:
+                list_transactions_hash.extend(lib_verify.get_transactions_hash_in_block(list_blocks))
+
             for hash_ in list_transactions_hash:
                 for pending_transaction in pending_transactions:
                     if hash_ == pending_transaction["hash"]:
