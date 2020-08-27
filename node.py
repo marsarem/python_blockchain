@@ -191,7 +191,7 @@ def background_task():
                     # On vérifie les transactions et on les ajoutes
                     # print("coucou")
                     # print(pending_transactions_remote)
-                    node.add_transactions_from_node(new_pending_transactions)
+                    node.add_transactions_from_node(pending_transactions_remote)
                     # print(node.get_node_info())
 
             except Exception as e:
