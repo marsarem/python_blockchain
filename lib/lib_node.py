@@ -148,7 +148,6 @@ class LibNode:
         except Exception as e:
             print("ERROR init database")
             print(e)
-        print("111")
         self.list_nodes = self.database.list_nodes
 
     #########
