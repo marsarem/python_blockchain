@@ -230,6 +230,7 @@ if __name__ == '__main__':
                         # It must be False if you start a new blockchain
 
     # Check if node needs to be sync :
+    print(node.get_node_info()["height"])
     if node.get_node_info()["height"] == "0":
         sync(node.list_nodes[0])
 
