@@ -91,7 +91,6 @@ def background_task():
     session = requests.Session()
     while True:
         node = lib_node.LibNode()
-        print(node.get_node_info())
         time.sleep(10)
         for node_remote in node.list_nodes:
             height_local_node = node.get_node_info()["height"]
@@ -157,16 +156,23 @@ def background_task():
                 pending_transactions_hash_local = node.get_node_info()["pending_transactions_hash"]
                 pending_transactions_local = node.get_pending_transactions()[0]
 
-                if pending_transactions_hash_local != pending_transactions_hash_remote:
+                if pending_transactions_hash_local != pending_transactions_hash_remote and pending_transactions_remote != "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945":
+                    print("OUI !!!")
                     req = session.get(f"http://{node_remote}/node/get_pending_transactions")
                     pending_transactions_remote = req.json()
 
+                    print(pending_transactions_remote)
+
                     # On supprime les transactions qui sont déjà dans notre liste
+                    print("----")
                     for transaction in pending_transactions_remote:
+                        print(transaction)
                         if transaction in pending_transactions_local:
                             pending_transactions_remote.remove(transaction)
 
                     # On vérifie les transactions et on les ajoutes
+                    print("coucou")
+                    print(pending_transactions_remote)
                     node.add_transactions_from_node(pending_transactions_remote)
                     print(node.get_node_info())
 
