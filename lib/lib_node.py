@@ -342,7 +342,6 @@ class LibNode:
 
         else:
             for i in range(len(list_blocks)):
-                print("block_height",block_height)
                 block_height = list_blocks[i]["height"]
                 verify_block = self.verify_one_block(list_blocks[i]["block"], list_blocks[i]["hash"], previous_block_hash, block_height)
                 if verify_block[0] != "Ok":
@@ -364,7 +363,7 @@ class LibNode:
         if verification[0] != "Ok":
             return verification
         
-        actual_height = get_node_info()["height"]
+        actual_height = self.get_node_info()["height"]
         if int(first_block_height) <= int(actual_height):
             self.del_blocks(first_block_height)
 
