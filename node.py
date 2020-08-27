@@ -87,6 +87,17 @@ api.add_resource(WalletGetTransactions, "/node/get_transactions")
 # https://github.com/satwikkansal/python_blockchain_app/blob/13ea6ee3859afc68305d86efa3977aabb4eb2e6b/node_server.py#L193
 # https://en.bitcoin.it/wiki/Network
 
+
+"""
+IL FAUT ENCORE PARTAGER LES NV TRANSACTIONS !!!
+
+A FAIRE !!!!!!!!!!!!!!!!!!!!!
+
+
+"""
+
+
+
 def background_task():
     session = requests.Session()
     while True:
