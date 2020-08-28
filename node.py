@@ -190,8 +190,8 @@ if __name__ == '__main__':
                         # It must be False if you start a new blockchain
 
     # Check if node needs to be sync :
-    print("SYNC STARTED...")
-    if node.get_node_info()["height"] == "0":
+    if node.get_node_info()["height"] == "0" and allow_sync == True:
+        print("SYNC STARTED...")
         sync(node.list_nodes[0])
         print("SYNC SUCCESSFUL")
 
